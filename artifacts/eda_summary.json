@@ -1,0 +1,164 @@
+{
+  "quality": {
+    "train_rows": 48000,
+    "validation_rows": 12000,
+    "train_dates": [
+      "2025-01-01",
+      "2025-10-31"
+    ],
+    "validation_dates": [
+      "2025-11-01",
+      "2025-12-31"
+    ],
+    "duplicate_rows": 0,
+    "negative_weight": {
+      "train": 292,
+      "validation": 145
+    },
+    "missing_weight": {
+      "train": 300,
+      "validation": 165
+    },
+    "weight_at_47500_cap": 1204,
+    "missing_market_index": {
+      "train": 374,
+      "validation": 249
+    },
+    "distance_at_70_floor": 48,
+    "label_outliers": 677,
+    "label_outlier_share": 0.014104166666666666,
+    "unseen_cities": [
+      "Allentown",
+      "Charlotte",
+      "Chicago",
+      "Jackson",
+      "Knoxville",
+      "Laredo",
+      "Norfolk",
+      "San Diego"
+    ],
+    "validation_share_touching_unseen_city": 0.12058333333333333,
+    "validation_share_on_seen_lane": 0.87825,
+    "rpm_median_negative_vs_positive_weight": [
+      2.156652923714251,
+      2.1454886384359746
+    ]
+  },
+  "rpm_by_distance_band": {
+    "(0, 150]": 2.873262469337694,
+    "(150, 250]": 2.686723762723763,
+    "(250, 400]": 2.4779449332954866,
+    "(400, 600]": 2.322,
+    "(600, 900]": 2.1890861000500035,
+    "(900, 1300]": 2.097145505916155,
+    "(1300, 1800]": 2.024655338824754,
+    "(1800, 2500]": 1.9495204898695877,
+    "(2500, 3500]": 1.869403876319541
+  },
+  "rpm_by_equipment": {
+    "Dry Van": 2.046,
+    "Flatbed": 2.22,
+    "Reefer": 2.312
+  },
+  "market_index_by_weekday": {
+    "0": 1.0,
+    "1": 1.075,
+    "2": 1.153,
+    "3": 1.179,
+    "4": 1.134,
+    "5": 1.048,
+    "6": 0.989
+  },
+  "market_index_monthly": {
+    "train": {
+      "1": 0.927,
+      "2": 0.996,
+      "3": 1.073,
+      "4": 1.207,
+      "5": 1.301,
+      "6": 1.28,
+      "7": 1.201,
+      "8": 0.982,
+      "9": 0.893,
+      "10": 0.957
+    },
+    "validation": {
+      "11": 0.919,
+      "12": 0.935
+    }
+  },
+  "quarter_end_ramp_last3days_pct": {
+    "Dry Van": 2.72,
+    "Flatbed": 7.99,
+    "Reefer": 5.11
+  },
+  "non_quarter_month_end_effect_pct": -0.0746067061114295,
+  "daily_level_r2_market_plus_drift": 0.971693780106894,
+  "quote_signal_by_equipment_month": {
+    "train": {
+      "Dry Van": {
+        "1": 1.982,
+        "2": 2.004,
+        "3": 2.069,
+        "4": 2.056,
+        "5": 2.007,
+        "6": 2.171,
+        "7": 2.022,
+        "8": 2.055,
+        "9": 2.081,
+        "10": 2.029
+      },
+      "Flatbed": {
+        "1": 2.128,
+        "2": 2.16,
+        "3": 2.278,
+        "4": 1.917,
+        "5": 1.849,
+        "6": 2.418,
+        "7": 1.844,
+        "8": 2.04,
+        "9": 2.312,
+        "10": 1.883
+      },
+      "Reefer": {
+        "1": 2.228,
+        "2": 2.26,
+        "3": 2.35,
+        "4": 1.788,
+        "5": 1.741,
+        "6": 2.49,
+        "7": 1.754,
+        "8": 2.054,
+        "9": 2.378,
+        "10": 1.789
+      }
+    },
+    "validation": {
+      "Dry Van": {
+        "11": 2.054,
+        "12": 2.05
+      },
+      "Flatbed": {
+        "11": 2.059,
+        "12": 2.04
+      },
+      "Reefer": {
+        "11": 2.055,
+        "12": 2.048
+      }
+    }
+  },
+  "corr_rate_residual_vs_abs_quote_dev": 0.11110199388304093,
+  "city_effect_std_pct": 1.7842770667356036,
+  "city_effect_corr_latitude": -0.8397567775003644,
+  "outlier_bands": {
+    "low": [
+      0.17051554295679647,
+      0.45632765600514813
+    ],
+    "high": [
+      2.238646333081303,
+      5.402235152333698
+    ]
+  }
+}
