@@ -9,8 +9,11 @@ matches the code that produced the predictions.
 """
 from __future__ import annotations
 
+import inspect
 import json
+import textwrap
 from datetime import date
+from pathlib import Path
 
 import numpy as np
 from docx import Document
@@ -20,7 +23,8 @@ from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Inches, Pt, RGBColor
 
-from src import config
+from src import config, validation
+from src.models import HybridModel
 
 AUTHOR = "karamobeidatb-source"
 OUT = config.REPORTS_DIR / "freight_rate_report.docx"
@@ -45,11 +49,22 @@ def effect(log_coef: float) -> float:
     return float(np.expm1(log_coef) * 100)
 
 
+def source(*objs) -> tuple[str, int, int, list[str]]:
+    """Exact source of adjacent functions: (file, first line, last line, dedented lines)."""
+    path = Path(inspect.getsourcefile(objs[0]))
+    start = inspect.getsourcelines(objs[0])[1]
+    last_lines, last_start = inspect.getsourcelines(objs[-1])
+    end = last_start + len(last_lines) - 1
+    text = "\n".join(path.read_text(encoding="utf-8").splitlines()[start - 1:end])
+    return path.relative_to(config.ROOT).as_posix(), start, end, textwrap.dedent(text).splitlines()
+
+
 class Report:
     def __init__(self):
         self.doc = Document()
         self.figures = 0
         self.tables = 0
+        self.snippets = 0
         section = self.doc.sections[0]
         section.page_width, section.page_height = Inches(8.5), Inches(11)
         for side in ("left_margin", "right_margin", "top_margin", "bottom_margin"):
@@ -129,6 +144,41 @@ class Report:
         self.doc.add_paragraph().paragraph_format.space_after = Pt(2)
         return self.tables
 
+    def code_block(self, objs: tuple, description: str):
+        """Shaded, monospaced copy of the given functions, read from the source file."""
+        self.snippets += 1
+        path, start, end, lines = source(*objs)
+        names = " and ".join(o.__qualname__ for o in objs)
+        cap = self._caption(f"Code {self.snippets}. {names} ({path}, lines {start}–{end}): {description}")
+        cap.paragraph_format.keep_with_next = True
+        table = self.doc.add_table(rows=1, cols=1)
+        table.alignment = WD_TABLE_ALIGNMENT.CENTER
+        table.autofit = False
+        cell = table.rows[0].cells[0]
+        cell.width = Inches(CONTENT_WIDTH)
+        self._shade(cell, "F3F4F4")
+        for i, line in enumerate(lines):
+            p = cell.paragraphs[0] if i == 0 else cell.add_paragraph()
+            p.paragraph_format.space_after = Pt(0)
+            p.paragraph_format.line_spacing = 1.0
+            run = p.add_run(line or " ")
+            run.font.name = "Consolas"
+            run.font.size = Pt(9)
+            if line.lstrip().startswith("#"):
+                run.font.color.rgb = GREY
+        self.doc.add_paragraph().paragraph_format.space_after = Pt(2)
+
+    def page_break(self):
+        self.doc.add_page_break()
+
+    @staticmethod
+    def _shade(cell, fill: str):
+        shd = OxmlElement("w:shd")
+        shd.set(qn("w:val"), "clear")
+        shd.set(qn("w:color"), "auto")
+        shd.set(qn("w:fill"), fill)
+        cell._tc.get_or_add_tcPr().append(shd)
+
     def _caption(self, text: str):
         p = self.doc.add_paragraph()
         run = p.add_run(text)
@@ -147,11 +197,7 @@ class Report:
             run.font.size = Pt(9)
             run.bold = run.bold or bold
         if fill:
-            shd = OxmlElement("w:shd")
-            shd.set(qn("w:val"), "clear")
-            shd.set(qn("w:color"), "auto")
-            shd.set(qn("w:fill"), fill)
-            cell._tc.get_or_add_tcPr().append(shd)
+            self._shade(cell, fill)
 
     def save(self, path):
         props = self.doc.core_properties
@@ -425,7 +471,7 @@ def main() -> None:
     r.bullet("**Next steps.** Prediction intervals (quantile LightGBM), monitoring of input drift such as quote_signal, "
              "and monthly retraining so the drift estimate keeps updating.")
 
-    r.heading("Appendix: reproducing the results")
+    r.heading("Appendix A: reproducing the results")
     r.code([
         "python -m venv .venv",
         ".venv\\Scripts\\activate          (macOS/Linux: source .venv/bin/activate)",
@@ -435,6 +481,13 @@ def main() -> None:
         "python score.py --predictions validation_predictions.csv --december-predictions data/december_chart_inputs.csv",
         "python make_report.py",
     ])
+
+    r.page_break()
+    r.heading("Appendix B: key code")
+    r.para("The two most important pieces of code, copied from the repository each time this report is built.")
+    r.code_block((HybridModel.fit, HybridModel.predict),
+                 "trend stage, LightGBM on what is left, then the lane correction.")
+    r.code_block((validation.time_backtest,), "the date-based, expanding-window split.")
     r.save(OUT)
     print(f"Wrote {OUT.relative_to(config.ROOT)}")
 

@@ -11,6 +11,8 @@ Predicts `posted_rate` for truckload freight. Trained on 48,000 loads from Janâ€
 
 The full write-up is in [reports/freight_rate_report.docx](reports/freight_rate_report.docx) ([PDF](reports/freight_rate_report.pdf)).
 
+**Video walkthrough (3 min):** https://www.loom.com/share/e467702e48f44082a053b3d6da5b0e64
+
 ## Run
 
 Requires Python 3.10+. Tested with Python 3.12 and pandas 2.3, numpy 2.5, scikit-learn 1.9, LightGBM 4.7, matplotlib 3.11.
